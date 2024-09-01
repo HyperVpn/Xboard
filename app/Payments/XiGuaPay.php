@@ -61,7 +61,7 @@ class XiGuaPay
             'sign' => $sign,
         ];
         //日志
-        Log::channel('daily')->error($params);
+//        Log::channel('daily')->error($params);
         $curl = new Curl();
         //超时10秒
         $curl->setOpt(CURLOPT_TIMEOUT, 10);
@@ -90,21 +90,18 @@ class XiGuaPay
 
     }
 
-    public function getOrder() {
-
-    }
-
     public function notify($params)
     {
+//        Log::channel('daily')->error($params);
         $mysign = md5('customerid='.$params['customerid'].'&status='.$params['status'].'&sdpayno='.$params['sdpayno'].'&sdorderno='.$params['sdorderno'].'&total_fee='.$params['total_fee'].'&paytype='.$params['paytype'].'&'.$this->config['key']);
         if ($params['sign'] == $mysign) {
             if ($params['status'] == 1) {
-                return 'success';
-            } else {
-                return 'fail';
+                return [
+                    'trade_no' => $params['sdorderno'],
+                    'callback_no' => $params['sdpayno']
+                ];
             }
-        } else {
-            return 'signerr';
         }
+        return false;
     }
 }
