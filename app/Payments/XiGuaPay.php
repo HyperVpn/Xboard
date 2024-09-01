@@ -85,7 +85,7 @@ class XiGuaPay
         $curl->close();
         return [
             'type' => 0, // 0:qrcode 1:url
-            'data' => $result->code_img_url
+            'data' => $result->code_url
         ];
 
     }
