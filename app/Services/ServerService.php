@@ -166,10 +166,28 @@ class ServerService
                 $shadowsocks[$key]['obfs-host'] = $v['obfs_settings']['host'];
                 $shadowsocks[$key]['obfs-path'] = $v['obfs_settings']['path'];
             }
+            $shadowsocks[$key]['uri'] = self::buildShadowsocks($shadowsocks[$key]['password'] ,$shadowsocks[$key]);
+
             $servers[] = $shadowsocks[$key]->toArray();
         }
         return $servers;
     }
+
+    public static function buildShadowsocks($password, $server)
+    {
+        $name = rawurlencode($server['name']);
+        $str = str_replace(
+            ['+', '/', '='],
+            ['-', '_', ''],
+            base64_encode("{$server['cipher']}:{$password}")
+        );
+        $uri = "ss://{$str}@{$server['host']}:{$server['port']}";
+        if ($server['obfs'] == 'http') {
+            $uri .= "?plugin=obfs-local;obfs=http;obfs-host={$server['obfs-host']};obfs-uri={$server['obfs-path']}";
+        }
+        return $uri."#{$name}\r\n";
+    }
+
 
     // 获取可用的服务器列表
     public static function getAvailableServers(User $user)
